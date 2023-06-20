@@ -78,9 +78,28 @@ class LoginView: UIView {
         button.setTitle("Sign In", for: [])
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInTapped), for: .primaryActionTriggered)
+        button.configuration?.imagePadding = 8 // indicator spacing
 
         return button
     }()
+    
+    lazy var errorMessageLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .systemRed
+        label.numberOfLines = 0
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
+    var username: String? {
+        return usernameTextField.text
+    }
+    
+    var password: String? {
+        return passwordTextField.text
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -90,7 +109,8 @@ class LoginView: UIView {
         addSubview(subtitleLabel)
         addSubview(textFieldStack)
         addSubview(signInButton)
-
+        addSubview(errorMessageLabel)
+        
         addTextFieldStackSubViews()
         setConstraints()
     }
@@ -104,10 +124,6 @@ class LoginView: UIView {
         textFieldStack.addArrangedSubview(usernameTextField)
         textFieldStack.addArrangedSubview(dividerView)
         textFieldStack.addArrangedSubview(passwordTextField)
-    }
-    
-    @objc func signInTapped() {
-        print("Signed in")
     }
     
     func setConstraints() {
@@ -133,7 +149,12 @@ class LoginView: UIView {
             signInButton.topAnchor.constraint(equalTo: textFieldStack.bottomAnchor,constant: 20),
             signInButton.leadingAnchor.constraint(equalTo: leadingAnchor),
             signInButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            signInButton.bottomAnchor.constraint(equalTo: bottomAnchor,constant: -20),
+            
+            //errorMessageLabel
+            errorMessageLabel.topAnchor.constraint(equalTo: signInButton.bottomAnchor,constant: 10),
+            errorMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            errorMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            errorMessageLabel.bottomAnchor.constraint(equalTo: bottomAnchor,constant: 20)
         ])
     }
     
@@ -153,4 +174,36 @@ extension LoginView: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         
     }
+}
+
+extension LoginView {
+    @objc func signInTapped() {
+        errorMessageLabel.isHidden = true
+        login()
+    }
+    
+    private func login() {
+        guard let username = username, let password = password else {
+            assertionFailure("Username / password should never be nil")
+            return
+        }
+        
+        if username.isEmpty || password.isEmpty {
+            configureView(withMessage: "Username / password cannot be blank")
+            return
+        }
+        
+        if username == "Deneme" && password == "deneme" {
+            signInButton.configuration?.showsActivityIndicator = true
+        } else {
+            configureView(withMessage: "Incorrect username / password")
+        }
+        
+    }
+    
+    private func configureView(withMessage message: String){
+        errorMessageLabel.isHidden = false
+        errorMessageLabel.text = message
+    }
+    
 }
