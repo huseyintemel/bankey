@@ -11,6 +11,10 @@ protocol LoginViewControllerDelegate: AnyObject {
     func didLogin()
 }
 
+protocol LogoutDelegate: AnyObject {
+    func didLogout()
+}
+
 class LoginViewController: UIViewController {
     
     lazy var titleLabel: UILabel = {
@@ -76,6 +80,17 @@ class LoginViewController: UIViewController {
         view.addSubview(errorMessageLabel)
         setConstraints()
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        signInButton.configuration?.showsActivityIndicator = false
+        clearInputs()
+    }
+    
+    func clearInputs() {
+        loginView.usernameTextField.text = ""
+        loginView.passwordTextField.text = ""
     }
 
     func setConstraints() {
