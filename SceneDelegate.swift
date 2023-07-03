@@ -77,13 +77,18 @@ extension SceneDelegate {
 
 extension SceneDelegate: LoginViewControllerDelegate {
     func didLogin() {
-        setRootViewController(onboardingContainerViewController)
+        if(LocalState.hasOnboarded) {
+            setRootViewController(dummyViewController)
+        } else {
+            setRootViewController(onboardingContainerViewController)
+        }
     }
 }
 
 
 extension SceneDelegate: OnboardingContainerViewControllerDelegate {
     func didFinishOnBoarding() {
+        LocalState.hasOnboarded = true
         setRootViewController(dummyViewController)
     }
 }
