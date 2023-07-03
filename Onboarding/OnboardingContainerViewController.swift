@@ -11,10 +11,16 @@ class OnboardingContainerViewController: UIViewController {
 
     let pageViewController: UIPageViewController
     var pages = [UIViewController]()
-    var currentVC: UIViewController {
-        didSet {
-        }
-    }
+    var currentVC: UIViewController
+    
+    lazy var closeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Close", for: [])
+        button.addTarget(self, action: #selector(closeTapped), for: .primaryActionTriggered)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        return button
+    }()
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         self.pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
@@ -43,6 +49,7 @@ class OnboardingContainerViewController: UIViewController {
         
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
+        view.addSubview(closeButton)
         pageViewController.didMove(toParent: self)
         
         pageViewController.dataSource = self
@@ -53,6 +60,9 @@ class OnboardingContainerViewController: UIViewController {
             view.leadingAnchor.constraint(equalTo: pageViewController.view.leadingAnchor),
             view.trailingAnchor.constraint(equalTo: pageViewController.view.trailingAnchor),
             view.bottomAnchor.constraint(equalTo: pageViewController.view.bottomAnchor),
+            
+            closeButton.leadingAnchor.constraint(equalToSystemSpacingAfter: view.leadingAnchor, multiplier: 2),
+            closeButton.topAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: view.safeAreaLayoutGuide.topAnchor, multiplier: 2),
         ])
         
         pageViewController.setViewControllers([pages.first!], direction: .forward, animated: false, completion: nil)
@@ -89,6 +99,12 @@ extension OnboardingContainerViewController: UIPageViewControllerDataSource {
 
     func presentationIndex(for pageViewController: UIPageViewController) -> Int {
         return pages.firstIndex(of: self.currentVC) ?? 0
+    }
+}
+
+extension OnboardingContainerViewController {
+    @objc func closeTapped() {
+        print("Close tapped.")
     }
 }
 
