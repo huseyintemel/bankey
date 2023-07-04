@@ -29,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         onboardingContainerViewController.delegate = self
         dummyViewController.delegate = self
         
-        window?.rootViewController = mainViewController
+        window?.rootViewController = AccountSummaryViewController()
         window?.makeKeyAndVisible()
     }
 
