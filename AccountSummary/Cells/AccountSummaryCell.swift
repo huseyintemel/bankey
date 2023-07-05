@@ -10,7 +10,7 @@ import UIKit
 class AccountSummaryCell: UITableViewCell {
 
     static let reuseId = "AccountSummaryCell"
-    static let rowHeight: CGFloat = 100
+    static let rowHeight: CGFloat = 112
     
     lazy var typeLabel: UILabel = {
         let label = UILabel()
@@ -51,10 +51,9 @@ class AccountSummaryCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+        
     let balanceAmountLabel: UILabel = {
         let label = UILabel()
-        label.text="$ 929,466.63"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -75,6 +74,7 @@ class AccountSummaryCell: UITableViewCell {
         contentView.addSubview(nameLabel)
         addBalanceStackViewSubViews()
         contentView.addSubview(balanceStackView)
+        balanceAmountLabel.attributedText = makeFormattedBalance(dollars: "929,466", cents: "23")
         contentView.addSubview(chevronImageView)
 
         setConstraints()
@@ -115,7 +115,22 @@ class AccountSummaryCell: UITableViewCell {
             trailingAnchor.constraint(equalTo: chevronImageView.trailingAnchor, constant: 8)
         ])
     }
+    
+}
 
-    
-    
+extension AccountSummaryCell {
+    private func makeFormattedBalance(dollars: String, cents: String) -> NSMutableAttributedString {
+        let dollarSignAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.preferredFont(forTextStyle: .callout), .baselineOffset: 8]
+        let dollarAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.preferredFont(forTextStyle: .title1)]
+        let centAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.preferredFont(forTextStyle: .footnote), .baselineOffset: 8]
+        
+        let rootString = NSMutableAttributedString(string: "$", attributes: dollarSignAttributes)
+        let dollarString = NSAttributedString(string: dollars, attributes: dollarAttributes)
+        let centString = NSAttributedString(string: cents, attributes: centAttributes)
+        
+        rootString.append(dollarString)
+        rootString.append(centString)
+        
+        return rootString
+    }
 }
