@@ -8,9 +8,21 @@
 import UIKit
 
 class AccountSummaryCell: UITableViewCell {
+    
+    enum AccounType: String {
+        case Banking
+        case CreditCard
+        case Investment
+    }
+    
+    struct ViewModel {
+        let accountType: AccounType
+        let accountName: String
+    }
 
     static let reuseId = "AccountSummaryCell"
     static let rowHeight: CGFloat = 112
+    let viewModel: ViewModel? = nil
     
     lazy var typeLabel: UILabel = {
         let label = UILabel()
@@ -22,7 +34,6 @@ class AccountSummaryCell: UITableViewCell {
     
     lazy var underlineView: UIView = {
         let view = UIView()
-        view.backgroundColor = appColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -132,5 +143,25 @@ extension AccountSummaryCell {
         rootString.append(centString)
         
         return rootString
+    }
+}
+
+extension AccountSummaryCell {
+    func configure(with vm:ViewModel){
+        typeLabel.text = vm.accountType.rawValue
+        nameLabel.text = vm.accountName
+        
+        switch vm.accountType {
+            
+        case .Banking:
+            underlineView.backgroundColor = appColor
+            balanceLabel.text = "Current Balance"
+        case .CreditCard:
+            underlineView.backgroundColor = .systemOrange
+            balanceLabel.text = "Current Balance"
+        case .Investment:
+            underlineView.backgroundColor = .systemPurple
+            balanceLabel.text = "Value"
+        }
     }
 }
