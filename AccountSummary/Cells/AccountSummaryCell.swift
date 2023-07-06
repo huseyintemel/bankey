@@ -18,6 +18,11 @@ class AccountSummaryCell: UITableViewCell {
     struct ViewModel {
         let accountType: AccounType
         let accountName: String
+        let balance: Decimal
+        
+        var balanceAsAttributedString: NSAttributedString {
+            return CurrencyFormatter().makeAttributedCurrency(balance)
+        }
     }
 
     static let reuseId = "AccountSummaryCell"
@@ -65,6 +70,7 @@ class AccountSummaryCell: UITableViewCell {
         
     let balanceAmountLabel: UILabel = {
         let label = UILabel()
+        label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -85,7 +91,6 @@ class AccountSummaryCell: UITableViewCell {
         contentView.addSubview(nameLabel)
         addBalanceStackViewSubViews()
         contentView.addSubview(balanceStackView)
-        balanceAmountLabel.attributedText = makeFormattedBalance(dollars: "929,466", cents: "23")
         contentView.addSubview(chevronImageView)
 
         setConstraints()
@@ -130,26 +135,10 @@ class AccountSummaryCell: UITableViewCell {
 }
 
 extension AccountSummaryCell {
-    private func makeFormattedBalance(dollars: String, cents: String) -> NSMutableAttributedString {
-        let dollarSignAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.preferredFont(forTextStyle: .callout), .baselineOffset: 8]
-        let dollarAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.preferredFont(forTextStyle: .title1)]
-        let centAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.preferredFont(forTextStyle: .footnote), .baselineOffset: 8]
-        
-        let rootString = NSMutableAttributedString(string: "$", attributes: dollarSignAttributes)
-        let dollarString = NSAttributedString(string: dollars, attributes: dollarAttributes)
-        let centString = NSAttributedString(string: cents, attributes: centAttributes)
-        
-        rootString.append(dollarString)
-        rootString.append(centString)
-        
-        return rootString
-    }
-}
-
-extension AccountSummaryCell {
     func configure(with vm:ViewModel){
         typeLabel.text = vm.accountType.rawValue
         nameLabel.text = vm.accountName
+        balanceAmountLabel.attributedText = vm.balanceAsAttributedString
         
         switch vm.accountType {
             
