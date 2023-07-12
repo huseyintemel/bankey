@@ -13,7 +13,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     let loginViewController = LoginViewController()
-    let onboardingContainerViewController = OnboardingContainerViewController()
+    let onboardingViewController = OnboardingContainerViewController()
     let mainViewController = MainViewController()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -25,16 +25,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
         
         loginViewController.delegate = self
-        onboardingContainerViewController.delegate = self
+        onboardingViewController.delegate = self
         
         window?.makeKeyAndVisible()
-        let vc = mainViewController
-        vc.setStatusBar()
+        displayLogin()
+    }
+    
+    private func displayLogin() {
+        setRootViewController(loginViewController)
+    }
 
+    private func displayNextScreen() {
+        prepMainView()
+        if LocalState.hasOnboarded {
+            setRootViewController(mainViewController)
+        } else {
+            setRootViewController(onboardingViewController)
+        }
+    }
+        
+    private func prepMainView() {
+        mainViewController.setStatusBar()
         UINavigationBar.appearance().isTranslucent = false
         UINavigationBar.appearance().backgroundColor = appColor
-            
-        window?.rootViewController = vc
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -84,11 +97,7 @@ extension SceneDelegate {
 
 extension SceneDelegate: LoginViewControllerDelegate {
     func didLogin() {
-        if(LocalState.hasOnboarded) {
-            setRootViewController(mainViewController)
-        } else {
-            setRootViewController(onboardingContainerViewController)
-        }
+        displayNextScreen()
     }
 }
 
