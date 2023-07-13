@@ -47,6 +47,7 @@ class AccountSummaryCell: UITableViewCell {
         let label = UILabel()
         label.text = "Account name"
         label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontSizeToFitWidth = true
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -63,6 +64,7 @@ class AccountSummaryCell: UITableViewCell {
         let label = UILabel()
         label.text="Some Balance"
         label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontSizeToFitWidth = true
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
