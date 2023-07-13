@@ -26,7 +26,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         loginViewController.delegate = self
         onboardingViewController.delegate = self
-        
+        registerForNotifications()
+
         window?.makeKeyAndVisible()
         displayLogin()
     }
@@ -48,6 +49,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         mainViewController.setStatusBar()
         UINavigationBar.appearance().isTranslucent = false
         UINavigationBar.appearance().backgroundColor = appColor
+    }
+    
+    private func registerForNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(didLogout), name: .logout, object: nil)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -110,7 +115,7 @@ extension SceneDelegate: OnboardingContainerViewControllerDelegate {
 }
 
 extension SceneDelegate: LogoutDelegate {
-    func didLogout() {
+    @objc func didLogout() {
         setRootViewController(loginViewController)
     }
 }
