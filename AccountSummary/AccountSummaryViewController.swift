@@ -10,8 +10,11 @@ import UIKit
 class AccountSummaryViewController: UIViewController {
     
     var accounts: [AccountSummaryCell.ViewModel] = []
+    var headerViewModel = AccountSummaryHeaderView.ViewModel(welcomeMessage: "Welcome", name: "", date: Date())
+    var profile: Profile?
     
     var tableView = UITableView()
+    let headerView = AccountSummaryHeaderView(frame: .zero)
     
     lazy var logoutBarButtonItem: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutTapped))
@@ -35,6 +38,11 @@ extension AccountSummaryViewController {
         setupTableView()
         setupTableHeaderView()
         fetchData()
+        
+        Task {
+            await fetchProfile(forUserId: "1")
+        }
+        
     }
     
     private func setupTableView() {
@@ -57,13 +65,11 @@ extension AccountSummaryViewController {
     }
     
     private func setupTableHeaderView() {
-        let header = AccountSummaryHeaderView(frame: .zero)
-        
-        var size = header.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        var size = headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         size.width = UIScreen.main.bounds.width
-        header.frame.size = size
+        headerView.frame.size = size
         
-        tableView.tableHeaderView = header
+        tableView.tableHeaderView = headerView
     }
     
 }
@@ -118,6 +124,25 @@ extension AccountSummaryViewController {
         accounts.append(investment1)
         accounts.append(investment2)
     }
+    
+    
+    func fetchProfile(forUserId userId: String) async {
+        let url = "https://fierce-retreat-36855.herokuapp.com/bankey/profile/\(userId)"
+
+        do {
+            self.profile = try await NetworkManager.shared.fetchData(from: url, responseType: Profile.self)
+            self.configureTableHeaderView(with: profile!)
+        } catch {
+                print("Error: \(error)")
+        }
+    }
+    
+    private func configureTableHeaderView(with profile: Profile) {
+           let vm = AccountSummaryHeaderView.ViewModel(welcomeMessage: "Good morning,",
+                                                       name: profile.firstName,
+                                                       date: Date())
+           headerView.configure(viewModel: vm)
+       }
 }
 
 extension AccountSummaryViewController {
