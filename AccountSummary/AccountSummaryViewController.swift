@@ -9,7 +9,8 @@ import UIKit
 
 class AccountSummaryViewController: UIViewController {
     
-    var accounts: [AccountSummaryCell.ViewModel] = []
+    var accounts: [Account] = []
+    var accountCellViewModels: [AccountSummaryCell.ViewModel] = []
     var headerViewModel = AccountSummaryHeaderView.ViewModel(welcomeMessage: "Welcome", name: "", date: Date())
     var profile: Profile?
     
@@ -37,10 +38,10 @@ extension AccountSummaryViewController {
     private func setup() {
         setupTableView()
         setupTableHeaderView()
-        fetchData()
         
         Task {
             await fetchProfile(forUserId: "1")
+            await fetchAccounts(forUserId: "1")
         }
         
     }
@@ -79,9 +80,9 @@ extension AccountSummaryViewController: UITableViewDataSource {
         guard !accounts.isEmpty else { return UITableViewCell() }
                 
         let cell = tableView.dequeueReusableCell(withIdentifier: AccountSummaryCell.reuseId, for: indexPath) as! AccountSummaryCell
-        let account = accounts[indexPath.row]
-                cell.configure(with: account)
-                
+        let account = accountCellViewModels[indexPath.row]
+        cell.configure(with: account)
+        
         return cell
     }
     
@@ -97,32 +98,24 @@ extension AccountSummaryViewController: UITableViewDelegate {
 }
 
 extension AccountSummaryViewController {
-    private func fetchData() {
-        let savings = AccountSummaryCell.ViewModel(accountType: .Banking,
-                                                        accountName: "Basic Savings",
-                                                        balance: 929466.23)
-        let chequing = AccountSummaryCell.ViewModel(accountType: .Banking,
-                                                    accountName: "No-Fee All-In Chequing",
-                                                    balance: 17562.44)
-        let visa = AccountSummaryCell.ViewModel(accountType: .CreditCard,
-                                                       accountName: "Visa Avion Card",
-                                                       balance: 412.83)
-        let masterCard = AccountSummaryCell.ViewModel(accountType: .CreditCard,
-                                                       accountName: "Student Mastercard",
-                                                       balance: 50.83)
-        let investment1 = AccountSummaryCell.ViewModel(accountType: .Investment,
-                                                       accountName: "Tax-Free Saver",
-                                                       balance: 2000.00)
-        let investment2 = AccountSummaryCell.ViewModel(accountType: .Investment,
-                                                       accountName: "Growth Fund",
-                                                       balance: 15000.00)
+    
+    func fetchAccounts(forUserId userId: String) async {
+        let url = "https://fierce-retreat-36855.herokuapp.com/bankey/profile/\(userId)/accounts"
 
-        accounts.append(savings)
-        accounts.append(chequing)
-        accounts.append(visa)
-        accounts.append(masterCard)
-        accounts.append(investment1)
-        accounts.append(investment2)
+        do {
+            self.accounts = try await NetworkManager.shared.fetchData(from: url, responseType: [Account].self)
+            self.configureTableCells(with: accounts)
+            self.tableView.reloadData()
+        } catch {
+                print("Error: \(error)")
+        }
+        
+    }
+    
+    private func configureTableCells(with accounts: [Account]) {
+        accountCellViewModels = accounts.map {
+            AccountSummaryCell.ViewModel(accountType: $0.type, accountName: $0.name, balance: $0.amount)
+        }
     }
     
     
@@ -132,6 +125,7 @@ extension AccountSummaryViewController {
         do {
             self.profile = try await NetworkManager.shared.fetchData(from: url, responseType: Profile.self)
             self.configureTableHeaderView(with: profile!)
+            self.tableView.reloadData()
         } catch {
                 print("Error: \(error)")
         }

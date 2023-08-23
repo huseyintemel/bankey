@@ -9,14 +9,8 @@ import UIKit
 
 class AccountSummaryCell: UITableViewCell {
     
-    enum AccounType: String {
-        case Banking
-        case CreditCard
-        case Investment
-    }
-    
     struct ViewModel {
-        let accountType: AccounType
+        let accountType: AccountType
         let accountName: String
         let balance: Decimal
         

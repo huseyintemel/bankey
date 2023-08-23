@@ -25,6 +25,8 @@ class NetworkManager {
         }
         
         let (data, _) = try await URLSession.shared.data(from: url)
-        return try JSONDecoder().decode(responseType, from: data)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(responseType, from: data)
     }
 }
