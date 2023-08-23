@@ -16,6 +16,7 @@ class AccountSummaryViewController: UIViewController {
     
     var tableView = UITableView()
     let headerView = AccountSummaryHeaderView(frame: .zero)
+    let refreshController = UIRefreshControl()
     
     lazy var logoutBarButtonItem: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutTapped))
@@ -27,6 +28,7 @@ class AccountSummaryViewController: UIViewController {
         super.viewDidLoad()
         setup()
         setupNavigationBar()
+        setupRefreshControl()
     }
     
     func setupNavigationBar() {
@@ -73,6 +75,12 @@ extension AccountSummaryViewController {
         tableView.tableHeaderView = headerView
     }
     
+    private func setupRefreshControl() {
+        refreshController.tintColor = appColor
+        refreshController.addTarget(self, action: #selector(refreshContent), for: .valueChanged)
+        tableView.refreshControl = refreshController
+    }
+    
 }
 
 extension AccountSummaryViewController: UITableViewDataSource {
@@ -106,6 +114,7 @@ extension AccountSummaryViewController {
             self.accounts = try await NetworkManager.shared.fetchData(from: url, responseType: [Account].self)
             self.configureTableCells(with: accounts)
             self.tableView.reloadData()
+            self.tableView.refreshControl?.endRefreshing()
         } catch {
                 print("Error: \(error)")
         }
@@ -126,6 +135,7 @@ extension AccountSummaryViewController {
             self.profile = try await NetworkManager.shared.fetchData(from: url, responseType: Profile.self)
             self.configureTableHeaderView(with: profile!)
             self.tableView.reloadData()
+            self.tableView.refreshControl?.endRefreshing()
         } catch {
                 print("Error: \(error)")
         }
@@ -142,5 +152,13 @@ extension AccountSummaryViewController {
 extension AccountSummaryViewController {
     @objc func logoutTapped(sender: UIButton) {
         NotificationCenter.default.post(name: .logout, object: nil)
+    }
+    
+    @objc func refreshContent() {
+        Task {
+            let userId = String(Int.random(in: 1..<4))
+            await fetchProfile(forUserId: userId)
+            await fetchAccounts(forUserId: userId)
+        }
     }
 }
